@@ -1,0 +1,6 @@
+build_*
+.cache
+.vscode
+build
+.clangd
+.clang-format
