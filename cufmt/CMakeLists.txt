@@ -30,12 +30,9 @@ endif()
 
 include(cmake/CPM.cmake)
 CPMAddPackage("gh:fmtlib/fmt#11.0.1")
-CPMAddPackage("gh:gabime/spdlog#v1.15.1")
+# CPMAddPackage("gh:gabime/spdlog#v1.15.1")
 
-find_package(spdlog REQUIRED)
+find_package(fmt REQUIRED)
 
 cuda_add_executable(main main.cu)
 target_link_libraries(main fmt::fmt-header-only)
-target_link_libraries(main spdlog::spdlog_header_only)
-find_package(MPI)
-target_link_libraries(main MPI::MPI_CXX)
