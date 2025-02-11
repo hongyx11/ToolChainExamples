@@ -9,6 +9,23 @@ set(CMAKE_CUDA_STANDARD_REQUIRED True)
 
 # Find MPI
 find_package(MPI REQUIRED)
+if(CMAKE_CXX_COMPILER MATCHES ".*cray.*" OR CMAKE_C_COMPILER MATCHES ".*cray.*")
+    message(STATUS "Detected Cray compiler: ${CMAKE_CXX_COMPILER}")
+    execute_process(
+        COMMAND ${MPI_C_COMPILER} --cray-print-opts=all
+        OUTPUT_VARIABLE MPI_FLAGS
+        ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+
+    string(REGEX MATCHALL "-I([^ ]+)" MPI_INCLUDE_FLAGS "${MPI_FLAGS}")
+    list(GET MPI_INCLUDE_FLAGS 0 MPI_INCLUDE_DIR_RAW)
+    string(REPLACE "-I" "" MPI_INCLUDE_PATH "${MPI_INCLUDE_DIR_RAW}")
+
+    message(STATUS "Detected MPI include path: ${MPI_INCLUDE_PATH}")
+    
+    # Set MPI include path globally
+    set(MPI_INCLUDE_PATH ${MPI_INCLUDE_PATH} CACHE PATH "MPI include path")
+endif()
 
 # Check if MPI_INCLUDE_PATH is defined
 if(DEFINED MPI_INCLUDE_PATH)
@@ -18,14 +35,13 @@ else()
     # Output a message if MPI_INCLUDE_PATH is not defined
     message(STATUS "MPI_INCLUDE_PATH is not set.")
 endif()
-
 # Find CUDAToolkit
-# Enable CUDA
 find_package(CUDAToolkit REQUIRED)
 add_executable(mpi_cuda main.cu)
 target_include_directories(mpi_cuda PUBLIC ${MPI_INCLUDE_PATH})
 target_link_libraries(mpi_cuda MPI::MPI_CXX CUDA::cudart)
-
+# important!! otherwise cray system will use g++ as liner exec ... 
+set_target_properties(mpi_cuda PROPERTIES LINKER_LANGUAGE CXX)
 
 # # Add the executable
 
