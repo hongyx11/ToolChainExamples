@@ -4,3 +4,5 @@ build_*
 build
 .clangd
 .clang-format
+cmake-build-debug-kkdebug
+.idea
